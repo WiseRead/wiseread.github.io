@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html>
 
+<script type="text/javascript" src="jszip.js"></script>
+
 <body>
 
-    <div id="drop_zone">Drop images here</div>
+    <div id="drop_zone">Drop images or or zip cbz here
+        <div>
+            <input type="file" id="file-uploader" class="inputfile" />
+            <label for="file-uploader">Or choose a file</label>
+        </div>
+    </div>
+
     <div id="setting-bar" class="setting-bar">
         <div class="table">
             <ul>
@@ -28,13 +36,13 @@
         --separator-line-border-bottom-size: 1px;
         --separator-line-padding: 30px;
 
-        --setting-bar-background-color: #f3f3f3; 
+        --setting-bar-background-color: #f3f3f3;
     }
 
     [data-theme="dark"] {
         --separator-line-color: rgba(223, 213, 213, 0.212);
         --page-background-color: rgb(53, 57, 59);
-        --setting-bar-background-color: #514d4d; 
+        --setting-bar-background-color: #514d4d;
     }
 
     [separator-line-mode="off"] {
@@ -51,12 +59,13 @@
         margin-bottom: 5px;
         margin-top: 5px;
         border: 1px solid #e7e7e7;
-        background-color: var(--setting-bar-background-color); 
+        background-color: var(--setting-bar-background-color);
     }
 
     .setting-bar .table {
-        display: table;   /* Allow the centering to work */
-	    margin: 0 auto;
+        display: table;
+        /* Allow the centering to work */
+        margin: 0 auto;
     }
 
     .setting-bar ul {
@@ -99,7 +108,7 @@
         margin-inline-end: 40px;
         padding-inline-start: 40px;
     }
-    
+
     .images-list li {
         /* SeparatorLine  */
         border-bottom: var(--separator-line-border-bottom-size) solid var(--separator-line-color);
@@ -119,7 +128,34 @@
 
         margin-bottom: 5px;
         margin-top: 5px;
+
+        font-size: 18px;
     }
+
+    /* Input file */
+    .inputfile {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .inputfile + label {
+        font-size: 80%;
+        cursor: pointer;
+        /* display: inline-block; */
+        text-decoration: underline;
+        border-radius: 30px;
+        padding: 2.5px;
+    }
+
+    .inputfile:focus + label,
+    .inputfile + label:hover {
+        background-color: var(--setting-bar-background-color);
+    }
+
 </style>
 
 
@@ -148,10 +184,10 @@
                 switchSeparatorLineMode()
             }
             else if (evt.text == "About") {
-                
+
             }
         }
-        
+
     }
 
     /// ---- ///
@@ -159,16 +195,16 @@
     // Init
     document.documentElement.setAttribute('data-theme', 'light');
     document.documentElement.setAttribute('separator-line-mode', 'off');
-    
+
     function switchTheme() {
         // See: https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
-        
+
         if (document.documentElement.getAttribute("data-theme") == 'light') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
         else {
             document.documentElement.setAttribute('data-theme', 'light');
-        }    
+        }
     }
 
     function switchSeparatorLineMode() {
@@ -177,7 +213,7 @@
         }
         else {
             document.documentElement.setAttribute('separator-line-mode', 'activate');
-        }    
+        }
     }
 
     // const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
@@ -185,26 +221,76 @@
 
     /// ---- ///
 
-    function handleFileSelect(evt) {
+    function handleButtonUploadFile(e) {
+        var files = e.target.files;
+        // if (!files[0]) {
+        //     return;
+        // }
+        loadFiles(files);
+    }
+
+    function handleFileDragSelect(evt) {
         evt.stopPropagation();
         evt.preventDefault();
 
         var files = evt.dataTransfer.files; // FileList object.
+        loadFiles(files);
+    }
+
+    function loadFiles(files) {
+        if (files[0].name.toLowerCase().endsWith(".zip") ||
+            files[0].name.toLowerCase().endsWith(".cbz")) {
+                updateZipImages(files);
+        }
+        else {
+            files = [].slice.call(files)
+            updateDirectImages(files);
+        }
+    }
+
+    function updateDirectImages(files) {
+        files = files.map(o=> {return {data: o, name: o.name};});
+        updateImages(files);
+    }
+
+    function updateZipImages(files) {
+        var zip = new JSZip();
+
+        zip.loadAsync( files[0] /* = file blob */)
+        .then(function(zipContent) {
+            var zipEntriesList = [];
+            var promisesArr = [];
+            zipContent.forEach(function (relativePath, zipEntry) {             
+                asyncBlob = zipContent.files[relativePath].async('blob');
+                promisesArr.push(asyncBlob);
+                asyncBlob.then(function(data) {
+                    zipEntriesList.push({data, name: relativePath});
+                })
+            });
+
+            Promise.all(promisesArr).then(function(values) {
+                updateImages(zipEntriesList)
+            });
+
+        }, function() {
+            alert("Not a valid .zip or .cbz file")
+        }); 
+    }
+
+    function updateImages(files) {
+        files.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
 
         const fileList = document.getElementById("list");
         fileList.innerHTML = "";
         const list = document.createElement("ul");
         fileList.appendChild(list);
 
-        files = [].slice.call(files)
-        files.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
-
         for (var i = 0, f; f = files[i]; i++) {
             const li = document.createElement("li");
             list.appendChild(li);
 
             const img = document.createElement("img");
-            img.src = window.URL.createObjectURL(f);
+            img.src = window.URL.createObjectURL(f.data);
             img.onload = function () {
                 window.URL.revokeObjectURL(this.src);
             }
@@ -221,7 +307,10 @@
     // Setup the dnd listeners.
     var dropZone = document.getElementById('drop_zone');
     dropZone.addEventListener('dragover', handleDragOver, false);
-    dropZone.addEventListener('drop', handleFileSelect, false);
+    dropZone.addEventListener('drop', handleFileDragSelect, false);
+
+    document.getElementById('file-uploader')
+    .addEventListener('change', handleButtonUploadFile, false);
 </script>
 
 </html>
