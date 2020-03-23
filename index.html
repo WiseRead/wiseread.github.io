@@ -1,31 +1,49 @@
 <!DOCTYPE html>
-<html>
-
-<script type="text/javascript" src="jszip.js"></script>
-<title>Offline Comic Reader</title>
+<html id="entire-page">
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/fontawesome_all_v5.4.1.css">
+        <script src="jquery-3.4.1.min.js"></script>
+        <script type="text/javascript" src="jszip.js"></script>
+    </head>
 <body>
-
-    <div id="drop_zone">Drop images or zip or cbz here
-        <div>
-            <input type="file" id="file-uploader" class="inputfile" />
-            <label for="file-uploader">Or choose a file</label>
+    <div class="mainwrapper ">
+        <div id="drop_zone">Drop images or zip or cbz here
+            <div>
+                <input type="file" id="file-uploader" class="inputfile" />
+                <label for="file-uploader">Or choose a file</label>
+            </div>
         </div>
-    </div>
-
-    <div id="setting-bar" class="setting-bar">
-        <div class="table">
-            <ul>
-                <!-- <li><a href="#home" onclick="selectSetting(this)" class="active">Home</a></li> -->
-                <li><a onclick="selectSetting(this)">DarkMode</a></li>
-                <li><a onclick="selectSetting(this)">SeparatorLine</a></li>
-                <li><a onclick="selectSetting(this)">About</a></li>
-            </ul>
+        
+        <div id="setting-bar" class="setting-bar">
+            <div class="table">
+                <ul>
+                    <li><a onclick="selectSetting(this)">DarkMode</a></li>
+                    <li><a onclick="selectSetting(this)">SeparatorLine</a></li>
+                    <li><a onclick="selectSetting(this)">About</a></li>
+                </ul>
+            </div>
         </div>
+    
+        <output id="list" class="images-list"></output>        
     </div>
-
-    <output id="list" class="images-list"></output>
 
 </body>
+
+<div id="lowerBarWrapper" onmouseout="">
+    <div style="display: flex; justify-content: center;">
+        <i class="arrow up" style="margin-top: 10px; margin-bottom: 0px;"></i>
+    </div>
+    
+    <div id="lowerBar" class="lowBar">
+        <button id="backToTopButton" class="fas fa-arrow-up" onclick="scrollToTop()" title="Go to top"></button>
+        <span style="float: left; clear: left;">
+            <p style="color: white; font-size: 19px; margin: 0px" id="fileNameText">No file...</p>
+            <p style="color: rgba(255, 255, 255, 0.767); font-size: 15px; margin: 0px" id="picNameText">No pic...</p>
+        </span>
+        
+    </div>
+</div>
+
 
 <style>
     :root {
@@ -52,6 +70,14 @@
 
     html {
         background-color: var(--page-background-color);
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .mainwrapper {
+        margin: 8px;
     }
 
     /* setting-bar */
@@ -100,7 +126,7 @@
     .images-list img {
         display: block;
         margin: 0 auto;
-        width: 500px;
+        width: 650px;
     }
 
     .images-list ul {
@@ -156,10 +182,96 @@
         background-color: var(--setting-bar-background-color);
     }
 
+    #lowerBarWrapper {
+        width: 100%; 
+        /* height: 76px;  */
+        background-color: black; 
+        margin-top: 10px;
+
+        position: fixed;
+        bottom: 0px;
+        box-shadow: 0px 0px 5px 0px;
+    }
+
+    .lowBar {
+        margin-bottom: 8px;
+        display: inline-flex;
+        -webkit-transition: max-height 0.35s ease-in;
+        -moz-transition: max-height 0.35s ease-in;
+        -o-transition: max-height 0.35s ease-in;
+        transition: max-height 0.35s ease-in;
+        max-height: 500px;
+    }
+
+    .lowBar.closed {
+        /* height: 0px; */
+        max-height: 0px;
+        -webkit-transition: max-height 0.35s ease-out;
+        -moz-transition: max-height 0.35s ease-out;
+        -o-transition: max-height 0.35s ease-out;
+        transition: max-height 0.35s ease-out;
+    }
+
+    /* back to top button */
+    #backToTopButton {
+        display: block;
+        
+        /* position: fixed; */
+        /* bottom: 9px;
+        left: 9px; */
+        /* z-index: 99; */
+
+        margin: auto 7px auto 7px;
+        /* margin-left: 7px; */
+        /* margin-bottom: 9px; */
+
+        font-size: 18px;
+        border: none;
+        outline: none;
+        background-color: #2514141c;
+        color: #ffffff9a;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 100px;
+    }
+
+    #backToTopButton:hover {
+        background-color: #555;
+    }    
+
+    .arrow {
+        border: solid #ffffffa3;
+        border-width: 0 3px 3px 0;
+        display: inline-block;
+        padding: 3px;
+    }
+
+    .arrow.right {
+        transform: rotate(-45deg);
+        -webkit-transform: rotate(-45deg);
+    }
+
+    .arrow.left {
+        transform: rotate(135deg);
+        -webkit-transform: rotate(135deg);
+    }
+
+    .arrow.up {
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+    }
+
+    .arrow.down {
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+    }
+
 </style>
 
 
 <script>
+    var imagesPositionsAndNames = []
+    var isFirstScroll = true;
 
     function selectSetting(evt) {
         if (evt.className == "active") {
@@ -176,15 +288,13 @@
             evt.setAttribute("class", "active")
 
             if (evt.text == "DarkMode") {
-                // alert("DarkMode is not supported yet");
-                // evt.removeAttribute("class")
                 switchTheme()
             }
             else if (evt.text == "SeparatorLine") {
                 switchSeparatorLineMode()
             }
             else if (evt.text == "About") {
-
+                // TODO: Add About
             }
         }
 
@@ -214,10 +324,9 @@
         else {
             document.documentElement.setAttribute('separator-line-mode', 'activate');
         }
-    }
 
-    // const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
-    // toggleSwitch.addEventListener('change', switchTheme, false);
+        calcImagesPositions();
+    }
 
     /// ---- ///
 
@@ -250,10 +359,13 @@
 
     function updateDirectImages(files) {
         files = files.map(o=> {return {data: o, name: o.name};});
+        setFileNameText(files[0].name);
         updateImages(files);
     }
 
     function updateZipImages(files) {
+        setFileNameText(files[0].name);
+
         var zip = new JSZip();
 
         zip.loadAsync( files[0] /* = file blob */)
@@ -284,6 +396,7 @@
         fileList.innerHTML = "";
         const list = document.createElement("ul");
         fileList.appendChild(list);
+        var firstPicName = null;
 
         for (var i = 0, f; f = files[i]; i++) {
             const li = document.createElement("li");
@@ -293,9 +406,21 @@
             img.src = window.URL.createObjectURL(f.data);
             img.onload = function () {
                 window.URL.revokeObjectURL(this.src);
-            }
+            };
             li.appendChild(img);
+
+            // Set pic name
+            li.setAttribute("data-image-name", f.name);
+            if (firstPicName == null) {
+                firstPicName = f.name;
+            }
+            li.onmouseover = function () {
+                setPicNameText(this.getAttribute("data-image-name"));
+            };
         }
+
+        scrollToTop();
+        if (firstPicName != null) { setPicNameText(firstPicName); }
     }
 
     function handleDragOver(evt) {
@@ -304,13 +429,105 @@
         evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
     }
 
+    function setScrollButton() {
+        // When the user scrolls down 20px from the top of the document, show the button
+
+        var backToTopButton = document.getElementById("backToTopButton");
+
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            // backToTopButton.style.display = "block";
+            backToTopButton.style.visibility ="visible";
+        } else {
+            // backToTopButton.style.display = "none";
+            backToTopButton.style.visibility ="hidden";
+        }
+    }
+
+    function scrollToTop() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        isFirstScroll = true;
+    }
+
+    function setFileNameText(content) {
+        var fileNameText = document.getElementById("fileNameText");
+        fileNameText.textContent = content;
+    }
+
+    function setPicNameText(content) {
+        var picNameText = document.getElementById("picNameText");
+        picNameText.textContent = content;
+    }
+
+    function openLowerBar() {
+        var lowerBar = document.getElementById("lowerBar");
+        lowerBar.classList.remove("closed");
+    }
+
+    function closeLowerBar() {
+        var lowerBar = document.getElementById("lowerBar");
+        if (!lowerBar.classList.contains("closed")) {
+            // TODO: uncomment:
+            // lowerBar.classList.add("closed");
+        }
+    }
+
+    function calcImagesPositions() {
+        imagesPositionsAndNames = [];
+
+        $("#list ul li").each(function( index ) {
+            var offset = $( this ).offset().top;
+            var outerHeight = $( this ).outerHeight();
+            var imageName = $(this)[0].getAttribute("data-image-name"); // ( $(this)[0] convert jquery element to regular element)
+            imagesPositionsAndNames.push({offset: offset, name: imageName, outerHeight: outerHeight});
+        });
+    }
+
     // Setup the dnd listeners.
-    var dropZone = document.getElementById('drop_zone');
+    var dropZone = document.getElementById('entire-page');
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileDragSelect, false);
 
     document.getElementById('file-uploader')
     .addEventListener('change', handleButtonUploadFile, false);
+
+    // Handle backToTopButton
+    var backToTopButton = document.getElementById("backToTopButton");
+    backToTopButton.style.visibility ="hidden";
+
+    var lowerBarWrapper = document.getElementById("lowerBarWrapper");
+    lowerBarWrapper.onmouseover = openLowerBar;
+    // lowerBarWrapper.onmouseout = closeLowerBar;
+    closeLowerBar();
+
+    // Show pic name when scrolling
+    $(window).scroll(function() {
+        setScrollButton();
+
+        if (isFirstScroll) {
+            isFirstScroll = false;
+            calcImagesPositions();
+        }
+
+        if (imagesPositionsAndNames.length > 1) {
+            var lastPicName = "";
+
+            for (var imageInd = 0; imageInd < imagesPositionsAndNames.length; imageInd++) {
+                var imagePos = imagesPositionsAndNames[imageInd].offset;
+                var picName = imagesPositionsAndNames[imageInd].name;
+                var imageHeight = imagesPositionsAndNames[imageInd].outerHeight;
+                var openWindowHeight = $(window).height();
+                var userPos = $(this).scrollTop();
+
+                if (userPos > (imagePos + (imageHeight / 2) - openWindowHeight)) {
+                    lastPicName = picName;
+                }
+            }
+
+            setPicNameText(lastPicName);
+        }
+    });
+
 </script>
 
 </html>
