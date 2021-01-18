@@ -23,6 +23,10 @@
                 </ul>
             </div>
         </div>
+
+        <div id="aboutArea" class="hide">
+            This site was built for the community to enjoy. <a href="about.html">Read more</a>.
+        </div>
     
         <output id="list" class="images-list"></output>        
     </div>
@@ -55,12 +59,16 @@
         --separator-line-padding: 30px;
 
         --setting-bar-background-color: #f3f3f3;
+        --main-text-color: #141212;
+        --link-color: #465cd6;
     }
 
     [data-theme="dark"] {
         --separator-line-color: rgba(223, 213, 213, 0.212);
         --page-background-color: rgb(53, 57, 59);
         --setting-bar-background-color: #514d4d;
+        --main-text-color: #dadada;
+        --link-color: #7989e0;
     }
 
     [separator-line-mode="off"] {
@@ -78,6 +86,11 @@
 
     .mainwrapper {
         margin: 8px;
+        color: var(--main-text-color);
+    }
+
+    .mainwrapper a {
+        color: var(--link-color);
     }
 
     /* setting-bar */
@@ -182,6 +195,19 @@
         background-color: var(--setting-bar-background-color);
     }
 
+    #aboutArea {
+        text-align: center;
+        margin: 26px;
+        font-size: 17px;
+        transition: all .3s ease;
+    }
+
+    #aboutArea.hide {
+        font-size: 0;
+        margin: 0px;
+        transition: all .3s ease;
+    }
+
     #lowerBarWrapper {
         width: 100%; 
         /* height: 76px;  */
@@ -276,28 +302,20 @@
     function selectSetting(evt) {
         if (evt.className == "active") {
             evt.removeAttribute("class")
-
-            if (evt.text == "DarkMode") {
-                switchTheme()
-            }
-            else if (evt.text == "SeparatorLine") {
-                switchSeparatorLineMode()
-            }
         }
         else {
             evt.setAttribute("class", "active")
-
-            if (evt.text == "DarkMode") {
-                switchTheme()
-            }
-            else if (evt.text == "SeparatorLine") {
-                switchSeparatorLineMode()
-            }
-            else if (evt.text == "About") {
-                // TODO: Add About
-            }
         }
 
+        if (evt.text == "DarkMode") {
+            switchTheme()
+        }
+        else if (evt.text == "SeparatorLine") {
+            switchSeparatorLineMode()
+        }
+        else if (evt.text == "About") {
+            showOrHideAbout()
+        }
     }
 
     /// ---- ///
@@ -314,6 +332,17 @@
         }
         else {
             document.documentElement.setAttribute('data-theme', 'light');
+        }
+    }
+
+    function showOrHideAbout() {
+        const aboutArea = document.getElementById("aboutArea");
+
+        if (aboutArea.classList.contains("hide")) {
+            aboutArea.classList.remove("hide");
+        }
+        else {
+            aboutArea.classList.add("hide");
         }
     }
 
