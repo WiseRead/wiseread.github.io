@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html id="entire-page">
     <head>
+        <title>Online Comic Reader</title>
         <link rel="stylesheet" type="text/css" href="css/fontawesome_all_v5.4.1.css">
         <script src="jquery-3.4.1.min.js"></script>
         <script type="text/javascript" src="jszip.js"></script>
@@ -69,8 +70,8 @@
         --separator-line-color: rgba(223, 213, 213, 0.233);
         --page-background-color: rgb(50 52 53);
         --setting-bar-background-color: #353535;
-        --setting-bar-hover-background-color: rgb(64 64 64);
-        --setting-bar-selected-background-color: rgb(93 93 93);
+        --setting-bar-hover-background-color: rgb(86 85 85);
+        --setting-bar-selected-background-color: rgb(124 124 124);
         --setting-bar-main-color: #cacaca;
         --main-text-color: #dadada;
         --link-color: #8290de;
@@ -105,11 +106,18 @@
         margin-top: 5px;
         border: 1px solid #e7e7e7;
         background-color: var(--setting-bar-background-color);
+        font-size: 17px;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        .setting-bar {
+            font-size: 25px;
+        }
     }
 
     .setting-bar .table {
         display: table;
-        /* Allow the centering to work */
         margin: 0 auto;
     }
 
@@ -182,12 +190,19 @@
         padding: 45px;
         text-align: center;
         font: 20pt bold 'Vollkorn';
-        color: #bbb;
+        color: #b5b4b4;
 
         margin-bottom: 5px;
         margin-top: 5px;
 
-        font-size: 18px;
+        font-size: 20px;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        #drop_zone {
+            font-size: 28px;
+        }
     }
 
     /* Input file */
