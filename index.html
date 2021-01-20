@@ -974,8 +974,8 @@
     // Handle url parameters
     const urlString = window.location.href;
     const url = new URL(urlString);
-    const downloadUrl = url.searchParams.get("download")
-    if (downloadUrl) {
+    if (url.searchParams.get("download")) {
+        const downloadUrl = url.search.replace("?download=", "");
         console.log(`Handle download url: ${downloadUrl}`);
         handleDownloadLinkFromUrlParameter(downloadUrl);
     }
