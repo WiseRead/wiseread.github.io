@@ -454,37 +454,60 @@
     }
 
     function updateImages(files) {
-        files.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+        try {
+            // Use naturalCompare to sort the images
+            // GitHub: https://github.com/litejs/natural-compare-lite
+            files.sort((a, b) => String.naturalCompare(a.name, b.name));
+            
+            // Old sort:
+            // files.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+            // files.sort((a, b) => a.name.localeCompare(b.name));
 
-        const fileList = document.getElementById("list");
-        fileList.innerHTML = "";
-        const list = document.createElement("ul");
-        fileList.appendChild(list);
-        var firstPicName = null;
+            loadingImages = 0
+            const fileList = document.getElementById("list");
+            fileList.innerHTML = "";
+            const list = document.createElement("ul");
+            fileList.appendChild(list);
+            var firstPicName = null;
 
-        for (var i = 0, f; f = files[i]; i++) {
-            const li = document.createElement("li");
-            list.appendChild(li);
+            for (var i = 0, f; f = files[i]; i++) {
+                if (f.data.size == 0) {
+                    // Skip folder name
+                    continue;
+                }
+                const li = document.createElement("li");
+                list.appendChild(li);
 
-            const img = document.createElement("img");
-            img.src = window.URL.createObjectURL(f.data);
-            img.onload = function () {
-                window.URL.revokeObjectURL(this.src);
-            };
-            li.appendChild(img);
+                const img = document.createElement("img");
+                img.src = window.URL.createObjectURL(f.data);
+                loadingImages += 1;
+                img.onload = function () {
+                    window.URL.revokeObjectURL(this.src);
+                    loadingImages -= 1;
+                    if (loadingImages == 0) {
+                        // Calc images positions again now when all the images have been loaded
+                        calcImagesPositions();
+                    }
+                };
+                li.appendChild(img);
 
-            // Set pic name
-            li.setAttribute("data-image-name", f.name);
-            if (firstPicName == null) {
-                firstPicName = f.name;
+                // Set pic name
+                li.setAttribute("data-image-name", f.name);
+                if (firstPicName == null) {
+                    firstPicName = f.name;
+                }
+                li.onmouseover = function () {
+                    setPicNameText(this.getAttribute("data-image-name"));
+                };
             }
-            li.onmouseover = function () {
-                setPicNameText(this.getAttribute("data-image-name"));
-            };
+
+            scrollToTop();
+            if (firstPicName != null) { setPicNameText(firstPicName); }
+        }
+        catch (e) {
+            alert(`Can't update images. Error: ${e}`)
         }
 
-        scrollToTop();
-        if (firstPicName != null) { setPicNameText(firstPicName); }
     }
 
     function handleDragOver(evt) {
