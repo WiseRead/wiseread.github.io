@@ -36,8 +36,8 @@
         <div id="setting-bar" class="setting-bar">
             <div class="table">
                 <ul>
-                    <li><a onclick="selectSetting(this)">DarkMode</a></li>
-                    <li><a onclick="selectSetting(this)">SeparatorLine</a></li>
+                    <li><a onclick="selectSetting(this)" id="themeButton">DarkMode</a></li>
+                    <li><a onclick="selectSetting(this)" id="separatorLineButton">SeparatorLine</a></li>
                     <li><a onclick="selectSetting(this)">About</a></li>
                 </ul>
             </div>
@@ -554,6 +554,18 @@
         }
     }
 
+    function setDarkTheme() {
+        if (document.documentElement.getAttribute("data-theme") == 'light') {
+            $("#themeButton").click();
+        }
+    }
+
+    function setLightTheme() {
+        if (document.documentElement.getAttribute("data-theme") == 'dark') {
+            $("#themeButton").click();
+        }
+    }
+
     function showElement(elementId) {
         const element = document.getElementById(`${elementId}`);
         element.classList.remove("hide");
@@ -587,6 +599,18 @@
         }
 
         calcImagesPositions();
+    }
+
+    function showSeparatorLine() {
+        if (!(document.documentElement.getAttribute("separator-line-mode") == 'activate')) {
+            $("#separatorLineButton").click();
+        }
+    }
+
+    function hideSeparatorLine() {
+        if (document.documentElement.getAttribute("separator-line-mode") == 'activate') {
+            $("#separatorLineButton").click();
+        }
     }
 
     /// ---- ///
@@ -982,10 +1006,35 @@
     // Handle url parameters
     const urlString = window.location.href;
     const url = new URL(urlString);
-    if (url.searchParams.get("download")) {
-        const downloadUrl = url.search.replace("?download=", "");
-        console.log(`Handle download url: ${downloadUrl}`);
-        handleDownloadLinkFromUrlParameter(downloadUrl);
+
+    if (url.searchParams.get("separator")) {
+        const separatorMode = url.searchParams.get("separator");
+        if (separatorMode == "on") {
+            showSeparatorLine();
+        }
+        else {
+            hideSeparatorLine();
+        }
+    }
+
+    if (url.searchParams.get("theme")) {
+        const theme = url.searchParams.get("theme");
+        if (theme == "dark") {
+            setDarkTheme();
+        }
+        else {
+            setLightTheme();
+        }
+    }
+
+    const downloadParamName = "download=";
+    const downloadParamIndex = url.search.indexOf(downloadParamName);
+    if (downloadParamIndex >= 0) {
+        const downloadUrl = url.search.slice(downloadParamIndex + downloadParamName.length);
+        if (downloadUrl) {
+            console.log(`Handle download url: ${downloadUrl}`);
+            handleDownloadLinkFromUrlParameter(downloadUrl);
+        }
     }
 
 </script>
