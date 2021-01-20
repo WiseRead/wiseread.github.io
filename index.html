@@ -5,6 +5,11 @@
         <link rel="stylesheet" type="text/css" href="css/fontawesome_all_v5.4.1.css">
         <script src="jquery-3.4.1.min.js"></script>
         <script type="text/javascript" src="jszip.js"></script>
+        <script src=min.natural-compare.js></script>
+
+        <!-- From https://loading.io/progress/ -->
+        <link rel="stylesheet" type="text/css" href="loading-bar.css"/>
+        <script type="text/javascript" src="loading-bar.js"></script>
     </head>
 <body>
     <div class="mainwrapper ">
@@ -16,6 +21,16 @@
                 <input type="file" id="file-uploader" class="inputfile" />
                 <label for="file-uploader">Or choose a file</label>
             </div>
+
+            <div class="url-input-area">
+                <input id="urlInput" type="url" name="url" class="urlTextInput" pattern="https://.*" placeholder="https://example.com/files/chapter.cbz" value="">
+                <button class="url-button url-button--icon" onclick="urlInputButtonClick()">
+                    <svg viewBox="0 0 24 24" role="presentation" class="footer__icon" aria-label="love">
+                        <path d="M4,10V14H13L9.5,17.5L11.92,19.92L19.84,12L11.92,4.08L9.5,6.5L13,10H4Z" style="fill: currentcolor;"></path>
+                    </svg>
+                </button>
+            </div>
+
         </div>
         
         <div id="setting-bar" class="setting-bar">
@@ -30,6 +45,16 @@
 
         <div id="aboutArea" class="hide">
             This site was built for the community to enjoy. <a href="about.html">Read more</a>.
+        </div>
+
+        <div id="loaderArea">
+            <div id="downloadProgressBar" class="ldBar" data-value="0"
+                style="width:100%; height:60px; margin-top: 50px; margin-bottom: 62px;",
+                data-stroke="data:ldbar/res,gradient(0,1,#9df,#9fd,#df9,#fd9)",
+                data-path="M10 20Q20 15 30 20Q40 25 50 20Q60 15 70 20Q80 25 90 20">
+            </div>
+
+            <div id="loader" class="lds-ellipsis hide"><div></div><div></div><div></div><div></div></div>
         </div>
     
         <output id="list" class="images-list"></output>        
@@ -67,6 +92,8 @@
         --setting-bar-main-color: #666;
         --main-text-color: #141212;
         --link-color: #465cd6;
+        --link-button-color: #fff;
+        --link-button-background-color: #7b94a2;
     }
 
     [data-theme="dark"] {
@@ -78,6 +105,8 @@
         --setting-bar-main-color: #cacaca;
         --main-text-color: #dadada;
         --link-color: #8290de;
+        --link-button-color: #e4e4e4;
+        --link-button-background-color: #6b6c6d;
     }
 
     [separator-line-mode="off"] {
@@ -194,14 +223,14 @@
         -webkit-border-radius: 5px;
         border-radius: 5px;
         padding: 45px;
+        padding-bottom: 15px;
         text-align: center;
         font: 20pt bold 'Vollkorn';
         color: #b5b4b4;
 
         margin-bottom: 5px;
         margin-top: 5px;
-
-        font-size: 20px;
+        font-size: 21.9px;
     }
 
     /* Phone screen */ 
@@ -233,6 +262,76 @@
     .inputfile:focus + label,
     .inputfile + label:hover {
         background-color: var(--setting-bar-background-color);
+    }
+
+    .url-input-area {
+        border: 2.1px solid #d2d2d2;
+        border-radius: .64rem;
+        display: flex;
+        width: 302px;
+        margin: 20px auto 0px auto;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        .url-input-area {
+            font-size: 89%;
+            width: 560px;
+        }
+    }
+
+    .urlTextInput {
+        background: transparent;
+        border: 0;
+        margin: .21rem;
+        flex: 1 0 0;
+        outline: 0;
+        padding: .2rem;
+        opacity: 0.9;
+        font-size: 61%;
+        color: var(--setting-bar-main-color);
+    }
+
+    .urlTextInput::placeholder  {
+        opacity: 0.8;
+    }
+
+    .url-button {
+        border-radius: 24px;
+        cursor: pointer;
+        background: var(--link-button-background-color);
+        color: var(--link-button-color);
+    }
+
+    .url-button--icon {
+        outline-color: transparent;
+        border: 0;
+        margin: .12rem;
+        margin-right: .30rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.0px;
+    }
+
+    .footer__icon {
+        width: 0.94rem;
+        height: 0.94rem;
+        margin: 4px;
+        vertical-align: baseline;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        .url-button--icon {
+            padding: 5.6px;
+            margin: .24rem;
+        }
+
+        .footer__icon {
+            width: 1.67rem;
+            height: 1.67rem;
+        }
     }
 
     #aboutArea {
@@ -330,11 +429,85 @@
         -webkit-transform: rotate(45deg);
     }
 
+    /* Download progress bar*/
+    .ldBar.hide {
+        display: none;
+    }
+
+    /* Loader */
+    #loaderArea {
+        text-align: center;
+    }
+    #loader {
+        width: 77px;
+        height: 77px;
+    }
+    #loader.hide {
+        display: none;
+    }
+    #loader div {
+        background: var(--link-button-background-color);
+    }
+    .lds-ellipsis {
+        display: inline-block;
+        position: relative;
+    }
+    .lds-ellipsis div {
+        position: absolute;
+        top: 33px;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        animation-timing-function: cubic-bezier(0, 1, 1, 0);
+    }
+    .lds-ellipsis div:nth-child(1) {
+        left: 8px;
+        animation: lds-ellipsis1 0.6s infinite;
+    }
+    .lds-ellipsis div:nth-child(2) {
+        left: 8px;
+        animation: lds-ellipsis2 0.6s infinite;
+    }
+    .lds-ellipsis div:nth-child(3) {
+        left: 32px;
+        animation: lds-ellipsis2 0.6s infinite;
+    }
+    .lds-ellipsis div:nth-child(4) {
+        left: 56px;
+        animation: lds-ellipsis3 0.6s infinite;
+    }
+    @keyframes lds-ellipsis1 {
+        0% {
+            transform: scale(0);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    @keyframes lds-ellipsis3 {
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(0);
+        }
+    }
+    @keyframes lds-ellipsis2 {
+        0% {
+            transform: translate(0, 0);
+        }
+        100% {
+            transform: translate(24px, 0);
+        }
+    }
+
+
 </style>
 
 
 <script>
-    var imagesPositionsAndNames = []
+    var imagesPositionsAndNames = [];
+    var loadingImages = 0;
     var isFirstScroll = true;
 
     function selectSetting(evt) {
@@ -352,7 +525,7 @@
             switchSeparatorLineMode()
         }
         else if (evt.text == "About") {
-            showOrHideAbout()
+            showOrHideElement("aboutArea")
         }
     }
 
@@ -373,14 +546,27 @@
         }
     }
 
-    function showOrHideAbout() {
-        const aboutArea = document.getElementById("aboutArea");
+    function showElement(elementId) {
+        const element = document.getElementById(`${elementId}`);
+        element.classList.remove("hide");
+    }
 
-        if (aboutArea.classList.contains("hide")) {
-            aboutArea.classList.remove("hide");
+    function hideElement(elementId) {
+        const element = document.getElementById(`${elementId}`);
+
+        if (!element.classList.contains("hide")) {
+            element.classList.add("hide");
+        }
+    }
+
+    function showOrHideElement(elementId) {
+        const element = document.getElementById(`${elementId}`);
+
+        if (element.classList.contains("hide")) {
+            element.classList.remove("hide");
         }
         else {
-            aboutArea.classList.add("hide");
+            element.classList.add("hide");
         }
     }
 
@@ -396,6 +582,11 @@
     }
 
     /// ---- ///
+
+    function updateDownloadProgressBar(percent) {
+        const bar = new ldBar("#downloadProgressBar")
+        bar.set(percent)
+    }
 
     function handleButtonUploadFile(e) {
         var files = e.target.files;
@@ -419,9 +610,55 @@
                 updateZipImages(files);
         }
         else {
-            files = [].slice.call(files)
+            files = [].slice.call(files);
             updateDirectImages(files);
         }
+    }
+
+    // From https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
+    function validURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(str);
+    }
+
+    function urlInputButtonClick() {
+        const urlInput = document.getElementById("urlInput");
+        const comicUrl = urlInput.value;
+        if (!validURL(comicUrl)) {
+            alert("Illegal comic url");
+            return;
+        }
+        
+        showElement("downloadProgressBar");
+
+        const readyBlobCallback = blobFile => { 
+            hideElement("downloadProgressBar"); 
+            updateZipImages([blobFile]) 
+        };
+        const fileDataCallback = ({ filename }) => {
+            setFileNameText(filename);
+        };
+        const errorCallback = errorString => alert(errorString);
+        const progressCallback = (receivedLength, contentLength) => {
+            const percent = contentLength !== 0 ? Math.floor((receivedLength / contentLength) * 100) : null;
+            updateDownloadProgressBar(percent)
+        };
+        const selectFileNameIfMissing = url => {
+            let lastUrlParameter = decodeURI(url).split("/").slice(-1)[0];
+            if (lastUrlParameter.endsWith("zip") || lastUrlParameter.endsWith("cbz")) {
+                return lastUrlParameter;
+            }
+            else {
+                return "Comic";
+            }
+        }
+
+        download(comicUrl, readyBlobCallback, fileDataCallback, errorCallback, progressCallback, selectFileNameIfMissing);
     }
 
     function updateDirectImages(files) {
@@ -431,7 +668,11 @@
     }
 
     function updateZipImages(files) {
-        setFileNameText(files[0].name);
+        if (files[0].name) {
+            setFileNameText(files[0].name);
+        }
+
+        showElement("loader");
 
         var zip = new JSZip();
 
@@ -448,12 +689,13 @@
             });
 
             Promise.all(promisesArr).then(function(values) {
-                updateImages(zipEntriesList)
+                updateImages(zipEntriesList);
+                hideElement("loader");
             });
 
         }, function() {
-            alert("Not a valid .zip or .cbz file")
-        }); 
+            alert("Not a valid .zip or .cbz file");
+        });
     }
 
     function updateImages(files) {
@@ -573,6 +815,113 @@
         });
     }
 
+    function handleDownloadLinkFromUrlParameter(downloadUrl) {
+        document.getElementById("urlInput").value = downloadUrl;
+        urlInputButtonClick();
+    }
+
+    // See https://javascript.info/fetch-progress
+    // See https://gist.github.com/damieng/157c0a0f9285d2fc78014a75cfc8f3e4
+    async function download(
+        url, 
+        readyBlobCallback, 
+        fileDataCallback, 
+        errorCallback, 
+        progressCallback,
+        selectFileNameIfMissing,
+        optionalLength = 50000000, 
+        useProxy = false
+        ) {
+        try {
+            // Init progress
+            progressCallback && progressCallback(0, 100);
+
+            // Start the fetch and obtain a reader
+            let response = await fetch(url);
+            const reader = response.body.getReader();
+
+            // Get total length
+            let isGuessedLength = true;
+            let contentLength = optionalLength;
+            const headerContentLength = parseInt(response.headers.get("Content-Length"), 10)
+            
+            if (headerContentLength) {
+                contentLength = headerContentLength;
+                isGuessedLength = false;
+            }
+
+            // Get filename
+            let filename = "";
+            const headerContentDisposition = response.headers.get("content-disposition");
+            if (headerContentDisposition) {
+                filename = headerContentDisposition.match(/(?<=")(?:\\.|[^"\\])*(?=")/)[0];
+            }
+            else {
+                filename = selectFileNameIfMissing(url);
+            }
+
+            fileDataCallback && fileDataCallback({ filename });
+            
+            // Read the data
+            let receivedLength = 0; // received that many bytes at the moment
+            let chunks = []; // array of received binary chunks (comprises the body)
+
+            while (true) {
+                const {done, value} = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                chunks.push(value);
+                receivedLength += value.length;
+
+                // If the guessed length was wrong, increase it
+                if (isGuessedLength && receivedLength >= contentLength) {
+                    contentLength = receivedLength * 2;
+                }
+
+                progressCallback && progressCallback(receivedLength, contentLength);
+            }
+
+            let blob = new Blob(chunks);
+            blob.name = filename;
+
+            progressCallback && progressCallback(receivedLength, receivedLength)
+            readyBlobCallback && readyBlobCallback(blob)
+        }
+        catch (err) {
+            // If access has been blocked by CORS policy, try again with proxy.
+            // See https://stackoverflow.com/questions/43871637/no-access-control-allow-origin-header-is-present-on-the-requested-resource-whe
+            if (err.message == "Failed to fetch" && !useProxy) {
+                const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
+                const argUrl = PROXY_URL + url;
+                const argUseProxy = true;
+                download(argUrl, readyBlobCallback, fileDataCallback, errorCallback, progressCallback, selectFileNameIfMissing, optionalLength, argUseProxy);
+            }
+            else {
+                errorCallback && errorCallback(`Can't download. Error: ${err}`);
+            }
+        }
+    }
+
+    // Load archive from server (without progress bar)
+    // See fetchArchive: https://github.com/btzr-io/Villain/blob/8af69e32c3ba617e87dcd945126c2bef517302d5/packages/villain-react/src/lib/utils.js#L22
+    // function fetchArchive (url, callback, errorCallback) {
+    //     fetch(url, { mode: 'cors' })
+    //     .then(status)
+    //     .then(res => {
+    //         // Get content-type
+    //         const contentType = res.headers.get('Content-Type')
+    //         return res.blob()
+    //     })
+    //     .then(callback)
+    //     .catch(error => {
+    //         errorCallback && errorCallback('Cant open archive')
+    //         console.error('Request failed', error)
+    //     })
+    // }
+
     // Setup the dnd listeners.
     var dropZone = document.getElementById('entire-page');
     dropZone.addEventListener('dragover', handleDragOver, false);
@@ -580,6 +929,10 @@
 
     document.getElementById('file-uploader')
     .addEventListener('change', handleButtonUploadFile, false);
+
+    // Hide bar
+    updateDownloadProgressBar(0) // Init to zero. I don't know why, but without it the bar disappears.
+    hideElement("downloadProgressBar")
 
     // Handle backToTopButton
     var backToTopButton = document.getElementById("backToTopButton");
@@ -590,7 +943,7 @@
     // lowerBarWrapper.onmouseout = closeLowerBar;
     closeLowerBar();
 
-    // Show pic name when scrolling
+    // Show/Update pic name when scrolling
     $(window).scroll(function() {
         setScrollButton();
 
@@ -617,6 +970,15 @@
             setPicNameText(lastPicName);
         }
     });
+
+    // Handle url parameters
+    const urlString = window.location.href;
+    const url = new URL(urlString);
+    const downloadUrl = url.searchParams.get("download")
+    if (downloadUrl) {
+        console.log(`Handle download url: ${downloadUrl}`);
+        handleDownloadLinkFromUrlParameter(downloadUrl);
+    }
 
 </script>
 
