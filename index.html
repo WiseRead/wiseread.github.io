@@ -853,6 +853,29 @@
         urlInputButtonClick();
     }
 
+    // Get file name from content-disposition header
+    // content-disposition example:
+    // "attachment;filename="file name.txt";filename*=UTF-8''file%20name.txt"
+    function getFileNameFromContentDispositionHeader(contentDisposition) {
+        // It was this line:
+        //  return contentDisposition.match(/(?<=")(?:\\.|[^"\\])*(?=")/)[0];
+        // But in Safari it gets exception: SyntaxError: Invalid regular expression: invalid group specifier name
+
+        let indexOfStart = contentDisposition.indexOf(`="`);
+        if (indexOfStart < 0) return "";
+        indexOfStart += `="`.length;
+
+        let indexOfEnd = null;
+        for (var ind = indexOfStart + 1; ind < contentDisposition.length; ind++) {
+            if (contentDisposition[ind] == `"`) {
+                indexOfEnd = ind
+            }
+        }
+        if (!indexOfEnd) return "";
+
+        return contentDisposition.substring(indexOfStart, indexOfEnd);
+    }
+
     // See https://javascript.info/fetch-progress
     // See https://gist.github.com/damieng/157c0a0f9285d2fc78014a75cfc8f3e4
     async function download(
@@ -887,9 +910,9 @@
             let filename = "";
             const headerContentDisposition = response.headers.get("content-disposition");
             if (headerContentDisposition) {
-                filename = headerContentDisposition.match(/(?<=")(?:\\.|[^"\\])*(?=")/)[0];
+                filename = getFileNameFromContentDispositionHeader(headerContentDisposition);
             }
-            else {
+            if (!filename) {
                 filename = selectFileNameIfMissing(url);
             }
 
