@@ -68,8 +68,8 @@
         <div id="lowerBar" class="lowBar">
             <button id="backToTopButton" class="fas fa-arrow-up" onclick="scrollToTop()" title="Go to top"></button>
             <span style="float: left; clear: left; margin-top: 4px;">
-                <p style="color: #b8b5b5; font-size: 14.5px; margin: 0px" id="fileNameText">No file...</p>
-                <p style="color: rgba(177, 175, 175, 0.767); font-size: 12.5px; margin: 0px" id="picNameText">No pic...</p>
+                <p id="fileNameText">No file...</p>
+                <p id="picNameText">No pic...</p>
             </span>
             
         </div>
@@ -276,8 +276,9 @@
     @media (max-width:990px) { 
         .url-input-area {
             font-size: 100%;
-            width: 560px;
+            width: 632px;
             margin-bottom: 10px;
+            margin-top: 39px;
         }
     }
 
@@ -325,13 +326,13 @@
     /* Phone screen */ 
     @media (max-width:990px) { 
         .url-button--icon {
-            padding: 5.6px;
-            margin: .24rem;
+            padding: 5.5px;
+            margin: .35rem;
         }
 
         .footer__icon {
-            width: 1.67rem;
-            height: 1.67rem;
+            width: 1.87rem;
+            height: 1.87rem;
         }
     }
 
@@ -383,6 +384,42 @@
         transition: max-height 0.35s ease-out;
     }
 
+    #fileNameText, #picNameText {
+        width: 87vw;
+        white-space: nowrap;
+        overflow:hidden;
+        text-overflow: ellipsis;
+    }
+
+    #fileNameText {
+        color: #b8b5b5;
+        font-size: 14.5px;
+        margin: 0px;
+    }
+
+    #picNameText {
+        color: rgba(177, 175, 175, 0.767);
+        font-size: 12.5px;
+        margin: 0px;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        #fileNameText, #picNameText {
+            width: 74vw;
+        }
+
+        #fileNameText {
+            color: #c1bebe;
+            font-size: 26.5px;
+        }
+
+        #picNameText {
+            color: rgba(190, 188, 188, 0.767);
+            font-size: 24.9px;
+        }
+    }
+
     /* back to top button */
     #backToTopButton {
         display: block;
@@ -408,7 +445,17 @@
 
     #backToTopButton:hover {
         background-color: #555;
-    }    
+    }
+
+        /* Phone screen */ 
+    @media (max-width:990px) { 
+        #backToTopButton {
+            margin: 2px 20px 11px 18px;
+            padding: 13px;
+            font-size: 40px;
+            background-color: #555;
+        }
+    }  
 
     .arrow {
         border: solid #c3c3c3a3;
