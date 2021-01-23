@@ -914,6 +914,10 @@
         //  return contentDisposition.match(/(?<=")(?:\\.|[^"\\])*(?=")/)[0];
         // But in Safari it gets exception: SyntaxError: Invalid regular expression: invalid group specifier name
 
+        if (!contentDisposition) {
+            return "";
+        }
+
         let indexOfStart = contentDisposition.indexOf(`="`);
         if (indexOfStart < 0) return "";
         indexOfStart += `="`.length;
@@ -921,10 +925,13 @@
         let indexOfEnd = null;
         for (var ind = indexOfStart + 1; ind < contentDisposition.length; ind++) {
             if (contentDisposition[ind] == `"`) {
-                indexOfEnd = ind
+                indexOfEnd = ind;
             }
         }
-        if (!indexOfEnd) return "";
+
+        if (!indexOfEnd) {
+            contentDisposition.substring(indexOfStart);
+        }
 
         return contentDisposition.substring(indexOfStart, indexOfEnd);
     }
