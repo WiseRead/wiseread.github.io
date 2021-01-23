@@ -1,14 +1,14 @@
 const cacheName = "pwa-conf-v1";
 const staticAssets = [
-    "./", 
-    "./index.html",
-    "./about.html",
-    "./app.js",
-    "./jquery-3.4.1.min.js",
-    "./jszip.js",
-    "./jszip.min.js",
-    "./loading-bar.css",
-    "./loading-bar.js"
+  "./",
+  "./index.html",
+  "./about.html",
+  "./app.js",
+  "./jquery-3.4.1.min.js",
+  "./jszip.js",
+  "./jszip.min.js",
+  "./loading-bar.css",
+  "./loading-bar.js",
 ];
 
 self.addEventListener("install", async (event) => {
@@ -18,11 +18,23 @@ self.addEventListener("install", async (event) => {
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-  event.respondWith(cacheFirst(req));
+  event.respondWith(networkFirst(req));
 });
 
 async function cacheFirst(req) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(req);
   return cachedResponse || fetch(req);
+}
+
+async function networkFirst(req) {
+  const cache = await caches.open(cacheName);
+  try {
+    const fresh = await fetch(req);
+    cache.put(req, fresh.clone());
+    return fresh;
+  } catch (e) {
+    const cachedResponse = await cache.match(req);
+    return cachedResponse;
+  }
 }
