@@ -25,7 +25,7 @@
         <div id="drop_zone">
             <h3 id="pageTitle" style="margin: 11px; margin-top: -22px; font-size: 137%;">Online/Offline Comic Reader</h3>
             Drop images or zip or cbz here
-            <div>
+            <div class="inputfile-div">
                 <input type="file" multiple="multiple" id="file-uploader" class="inputfile" />
                 <label for="file-uploader">Or choose file/s</label>
             </div>
@@ -277,6 +277,18 @@
         text-decoration: underline;
         border-radius: 30px;
         padding: 2.5px;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        .inputfile + label {
+            padding: 9px;
+            font-size: 93%;
+            background-color: var(--setting-bar-background-color);
+        }
+        .inputfile-div {
+            margin: 27px;
+        }
     }
 
     .inputfile:focus + label,
