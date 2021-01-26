@@ -903,6 +903,10 @@
     }
 
     function loadFiles(files) {
+        if (!files || files.length == 0) {
+            return;
+        }
+
         cancelMultiChapters();
 
         const handleDirectImages = filesArray => {
@@ -952,7 +956,8 @@
         
         showElement("downloadProgressBar");
 
-        const readyBlobCallback = blobFile => { 
+        const readyBlobCallback = blobFile => {
+            cancelMultiChapters();
             hideElement("downloadProgressBar"); 
             updateZipImages(blobFile);
         };
