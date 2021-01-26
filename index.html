@@ -26,8 +26,8 @@
             <h3 id="pageTitle" style="margin: 11px; margin-top: -22px; font-size: 137%;">Online/Offline Comic Reader</h3>
             Drop images or zip or cbz here
             <div>
-                <input type="file" id="file-uploader" class="inputfile" />
-                <label for="file-uploader">Or choose a file</label>
+                <input type="file" multiple="multiple" id="file-uploader" class="inputfile" />
+                <label for="file-uploader">Or choose file/s</label>
             </div>
 
             <div class="url-input-area">
@@ -50,6 +50,11 @@
                 </ul>
             </div>
         </div>
+        <div id="topNavigation" class="navigation hide">
+            <i class="nav-arrow nav-arrow-left" role="button" onclick="navToLeftChapter()"></i>
+            <span class="chapter-header"># Chapter ? #</span>
+            <i class="nav-arrow nav-arrow-right" role="button" onclick="navToRightChapter()"></i>
+        </div>
 
         <div id="aboutArea" class="hide">
             This site was built for the community to enjoy. <a href="about.html">Read more</a>.
@@ -65,7 +70,14 @@
             <div id="loader" class="lds-ellipsis hide"><div></div><div></div><div></div><div></div></div>
         </div>
     
-        <output id="list" class="images-list"></output>        
+        <output id="list" class="images-list"></output>
+        
+        <div id="bottomNavigation" class="navigation hide">
+            <i class="nav-arrow nav-arrow-left" role="button" onclick="navToLeftChapter()"></i>
+            <span class="chapter-header"># Chapter ? #</span>
+            <i class="nav-arrow nav-arrow-right" role="button" onclick="navToRightChapter()"></i>
+        </div>
+        <div class="empty-area"></div>
     </div>
 
     <div id="lowerBarWrapper" onmouseout="">
@@ -152,7 +164,7 @@
     /* Phone screen */ 
     @media (max-width:990px) { 
         .setting-bar {
-            font-size: 39px;
+            font-size: 40px;
         }
     }
 
@@ -462,14 +474,84 @@
         background-color: #555;
     }
 
-        /* Phone screen */ 
+    /* Phone screen */
     @media (max-width:990px) { 
         #backToTopButton {
             margin: 2px 20px 11px 18px;
             padding: 13px;
             font-size: 40px;
         }
-    }  
+    }
+
+    .empty-area {
+        height: 57px;
+    }
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        .empty-area {
+            height: 87px;
+        }
+    }
+
+    .navigation {
+        margin-top: 5px;
+        padding: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--setting-bar-background-color);
+        border: 1px solid #e7e7e7;
+        font-size: 17px;
+    }
+
+    .navigation.hide {
+        display: none;
+    }
+
+    .nav-arrow {
+        transition: all .3s ease;
+        opacity: 1;
+        width: 0;
+        height: 0; 
+        min-width: 23px;
+        border-top: 19px solid transparent;
+        border-bottom: 19px solid transparent;
+        cursor: pointer;
+        color: var(--setting-bar-selected-background-color);
+    }
+
+    .nav-arrow.hide {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .nav-arrow-right {
+        border-left: 23px solid;
+        right: 0;
+    }
+
+    .nav-arrow-left {
+        border-right: 23px solid;
+        left: 0;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) {
+        .navigation {
+            font-size: 34px;
+        }
+        .nav-arrow {
+            border-top: 35px solid transparent;
+            border-bottom: 35px solid transparent;
+            min-width: 14px;
+        }
+        .nav-arrow-right {
+            border-left: 41px solid;
+        }
+        .nav-arrow-left {
+            border-right: 41px solid;
+        }
+    }
 
     .arrow {
         border: solid #c3c3c3a3;
@@ -578,6 +660,9 @@
     var imagesPositionsAndNames = [];
     var loadingImages = 0;
     var isFirstScroll = true;
+    var multiChaptersArray = [];
+    var currChapterIndex = 0;
+    var isLTRNavigation = true;
 
     function selectSetting(evt) {
         if (evt.className == "active") {
@@ -627,13 +712,13 @@
         }
     }
 
-    function showElement(elementId) {
-        const element = document.getElementById(`${elementId}`);
+    function showElement(elementIdOrDirect, isDirect = false) {
+        const element = isDirect ? elementIdOrDirect : document.getElementById(`${elementIdOrDirect}`);
         element.classList.remove("hide");
     }
 
-    function hideElement(elementId) {
-        const element = document.getElementById(`${elementId}`);
+    function hideElement(elementIdOrDirect, isDirect = false) {
+        const element = isDirect ? elementIdOrDirect : document.getElementById(`${elementIdOrDirect}`);
 
         if (!element.classList.contains("hide")) {
             element.classList.add("hide");
@@ -693,18 +778,144 @@
         evt.stopPropagation();
         evt.preventDefault();
 
-        var files = evt.dataTransfer.files; // FileList object.
+        let files = evt.dataTransfer.files; // FileList object.
         loadFiles(files);
     }
 
-    function loadFiles(files) {
-        if (files[0].name.toLowerCase().endsWith(".zip") ||
-            files[0].name.toLowerCase().endsWith(".cbz")) {
-                updateZipImages(files);
+    function cancelMultiChapters() {
+        multiChaptersArray = [];
+        currChapterIndex = 0;
+        hideElement("topNavigation");
+        hideElement("bottomNavigation");
+    }
+
+    function navToRightChapter() {
+        isLTRNavigation ? navToNextChapter() : navToPrevChapter();
+    }
+
+    function navToLeftChapter() {
+        isLTRNavigation ? navToPrevChapter() : navToNextChapter();
+    }
+
+    function navToNextChapter() {
+        navToChapter(currChapterIndex + 1);
+    }
+
+    function navToPrevChapter() {
+        navToChapter(currChapterIndex - 1);
+    }
+
+    function hideNextArrows() {
+        let arrows = isLTRNavigation 
+            ? document.getElementsByClassName("nav-arrow-right") 
+            : document.getElementsByClassName("nav-arrow-left");
+
+        [...arrows].forEach(a => hideElement(a, true));
+    }
+
+    function hidePrevArrows() {
+        let arrows = isLTRNavigation 
+            ? document.getElementsByClassName("nav-arrow-left") 
+            : document.getElementsByClassName("nav-arrow-right");
+
+        [...arrows].forEach(a => hideElement(a, true));
+    }
+
+    function showNextArrows() {
+        let arrows = isLTRNavigation 
+            ? document.getElementsByClassName("nav-arrow-right") 
+            : document.getElementsByClassName("nav-arrow-left");
+
+        [...arrows].forEach(a => showElement(a, true));
+    }
+
+    function showPrevArrows() {
+        let arrows = isLTRNavigation 
+            ? document.getElementsByClassName("nav-arrow-left") 
+            : document.getElementsByClassName("nav-arrow-right");
+
+        [...arrows].forEach(a => showElement(a, true));
+    }
+
+    function navToChapter(toIndex) {
+        // Stop if index too big or too small
+        if (toIndex < 0 || toIndex >= multiChaptersArray.length) {
+            return;
+        }
+
+        currChapterIndex = toIndex;
+
+        // Update chapter headers
+        let chapterHeaders = document.getElementsByClassName("chapter-header");
+        [...chapterHeaders].forEach(a => a.textContent = `# Chapter ${toIndex + 1} #`);
+
+        // Load chapter
+        updateZipImages(multiChaptersArray[toIndex]);
+
+        // Hide/Show next arrow
+        if (currChapterIndex + 1 >= multiChaptersArray.length) {
+            hideNextArrows();
         }
         else {
-            files = [].slice.call(files);
-            updateDirectImages(files);
+            showNextArrows();
+        }
+        
+        // Hide/Show prev arrow
+        if (currChapterIndex <= 0) {
+            hidePrevArrows();
+        }
+        else {
+            showPrevArrows();
+        }
+    }
+
+    function startMultiChapters(archiveFiles) {
+        cancelMultiChapters();
+        multiChaptersArray = [...archiveFiles];
+        multiChaptersArray.sort((a, b) => String.naturalCompare(a.name, b.name));
+
+        showElement("topNavigation");
+        // (Show bottomNavigation only when images loading is complete)
+
+        navToChapter(0);
+    }
+
+    function isArchiveName(name) {
+        return (
+            name.toLowerCase().endsWith(".zip") || 
+            name.toLowerCase().endsWith(".cbz"));
+    }
+
+    function isImageName(name) {
+        return name.match(/.(jpg|jpeg|png|gif)$/i);
+    }
+
+    function loadFiles(files) {
+        cancelMultiChapters();
+
+        const handleDirectImages = filesArray => {
+            let filesAsArray = [].slice.call(files);
+            updateDirectImages(filesAsArray);
+        }
+
+        if (files.length > 1) {
+            // If all files are archives
+            if ([...files].every(f => isArchiveName(f.name))) {
+                startMultiChapters(files);
+            }
+            // Else, the files supposed to be images, without any archive
+            else if ([...files].some(f => isArchiveName(f.name))) {
+                alert("You can't load zip/cbz files along with other file types");
+            }
+            else {
+                handleDirectImages(files);
+            }
+        }
+        else if (isArchiveName(files[0].name)) {
+            updateZipImages(files[0]);
+        }
+        else {
+            handleDirectImages(files);
         }
     }
 
@@ -731,7 +942,7 @@
 
         const readyBlobCallback = blobFile => { 
             hideElement("downloadProgressBar"); 
-            updateZipImages([blobFile]) 
+            updateZipImages(blobFile);
         };
         const fileDataCallback = ({ filename }) => {
             setFileNameText(filename);
@@ -739,7 +950,7 @@
         const errorCallback = errorString => alert(errorString);
         const progressCallback = (receivedLength, contentLength) => {
             const percent = contentLength !== 0 ? Math.floor((receivedLength / contentLength) * 100) : null;
-            updateDownloadProgressBar(percent)
+            updateDownloadProgressBar(percent);
         };
         const selectFileNameIfMissing = url => {
             let lastUrlParameter = decodeURI(url).split("/").slice(-1)[0];
@@ -760,16 +971,18 @@
         updateImages(files);
     }
 
-    function updateZipImages(files) {
-        if (files[0].name) {
-            setFileNameText(files[0].name);
+    function updateZipImages(blobFile) {
+        const chapterIndexAtStart = currChapterIndex;
+
+        if (blobFile.name) {
+            setFileNameText(blobFile.name);
         }
 
         showElement("loader");
 
         var zip = new JSZip();
 
-        zip.loadAsync( files[0] /* = file blob */)
+        zip.loadAsync(blobFile)
         .then(function(zipContent) {
             var zipEntriesList = [];
             var promisesArr = [];
@@ -782,8 +995,14 @@
             });
 
             Promise.all(promisesArr).then(function(values) {
-                updateImages(zipEntriesList);
-                hideElement("loader");
+                // If user didn't moved to another chapter before extraction finished
+                if (chapterIndexAtStart == currChapterIndex) {
+                    updateImages(zipEntriesList);
+                    hideElement("loader");
+                    if (multiChaptersArray.length > 1) {
+                        showElement("bottomNavigation");
+                    }
+                }
             });
 
         }, function() {
@@ -953,7 +1172,7 @@
         errorCallback, 
         progressCallback,
         selectFileNameIfMissing,
-        optionalLength = 40000000, 
+        optionalLength = 12000000, 
         useProxy = false
         ) {
         try {
@@ -1000,9 +1219,16 @@
                 chunks.push(value);
                 receivedLength += value.length;
 
-                // If the guessed length was wrong, increase it
-                if (isGuessedLength && receivedLength >= contentLength) {
-                    contentLength = receivedLength * 2;
+                if (isGuessedLength) {
+                    // If the guessed length was wrong, increase it
+                    if (receivedLength >= contentLength) {
+                        contentLength = receivedLength * 2;
+                    }
+
+                    // If the guessed length is close, increase it slightly
+                    if (receivedLength >= contentLength * 0.6) {
+                        contentLength += value.length;
+                    }
                 }
 
                 progressCallback && progressCallback(receivedLength, contentLength);
@@ -1098,6 +1324,16 @@
     // Handle url parameters
     const urlString = window.location.href;
     const url = new URL(urlString);
+
+    if (url.searchParams.get("ltr")) {
+        const ltrString = url.searchParams.get("ltr");
+        if (ltrString == "false") {
+            isLTRNavigation = false;
+        }
+        else {
+            isLTRNavigation = true;
+        }
+    }
 
     if (url.searchParams.get("separator")) {
         const separatorMode = url.searchParams.get("separator");
