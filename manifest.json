@@ -3,9 +3,9 @@
     "short_name": "WiseRead",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#2A3443",
+    "background_color": "#1d242f",
     "description": "A demo app for a fictional conference",
-    "theme_color": "#2A3443",
+    "theme_color": "#1d242f",
     "icons": [
       {
         "src": "./favicon.png",
