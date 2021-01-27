@@ -1008,16 +1008,26 @@
                 })
             });
 
-            Promise.all(promisesArr).then(function(values) {
-                // If user didn't moved to another chapter before extraction finished
-                if (chapterIndexAtStart == currChapterIndex) {
-                    updateImages(zipEntriesList);
-                    hideElement("loader");
-                    if (multiChaptersArray.length > 1) {
-                        showElement("bottomNavigation");
+            try {
+                Promise.all(promisesArr).then(function(values) {
+                    // If user didn't moved to another chapter before extraction finished
+                    if (chapterIndexAtStart == currChapterIndex) {
+                        updateImages(zipEntriesList);
+                        hideElement("loader");
+                        if (multiChaptersArray.length > 1) {
+                            showElement("bottomNavigation");
+                        }
                     }
-                }
-            });
+                }).catch(err => {
+                    console.log(err);
+                    alert(`Error: ${err}`);
+                });
+            }
+            catch (e) {
+                console.log(e);
+                alert(`Error: ${e}`);
+            }
+
 
         }, function() {
             alert("Not a valid zip/cbz file");
