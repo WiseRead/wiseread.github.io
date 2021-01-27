@@ -1019,7 +1019,7 @@
                         }
                     }
                 }).catch(err => {
-                    let message = `ERROR: Maybe you are using Netspark or Rimon? (message: ${err})`;
+                    let message = `Can't extract archive. Maybe you use Netspark or Rimon? (error: ${err})`;
                     console.log(message);
                     alert(message);
                     hideElement("loader");
