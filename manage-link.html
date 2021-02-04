@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html id="entire-page">
+  <head>
+      <title>WiseRead - Manage Direct Reader link</title>
+      <script src="parse-url.js"></script>
+  </head>
+
+  <body class="background">
+    <div class="container">
+        <h2>Manage Direct Reader link</h2>
+        Create/Edit Direct Reader link of <a href="https://wiseread.github.io">WiseRead</a>.
+        
+        <h3 style="margin-top: 50px;">Enter link if you already have one:</h3>
+        <div style="display: flex;">
+            <div class="url-area">
+                <input class="url-input" type="text" id="existingUrl" 
+                placeholder="https://wiseread.github.io/?download=https://example.com/files/chapter.cbz">
+            </div>
+            <button class="r-btn btn btn-gray" onclick="updateFromLink()">Enter »</button>
+        </div>
+
+        <div class="toggle-area" style="margin-top: 20px;">
+            <span class="toggle-name">Left To Right:</span>
+            <label class="switch">
+                <input type="checkbox" onclick="updateToggles(this)" id="checkbox_Rtl" checked>
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <div class="toggle-area">
+            <span class="toggle-name">Separator Line:</span>
+            <label class="switch">
+                <input type="checkbox" onclick="updateToggles(this)" id="checkbox_Separator">
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <div class="toggle-area">
+            <span class="toggle-name">Dark Theme:</span>
+            <label class="switch">
+                <input type="checkbox" onclick="updateToggles(this)" id="checkbox_DarkTheme">
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <div class="download-list" style="margin-top: 45px;">
+            <h3 class="">Direct chapters links:</h3>
+            <div id="chaptersList">
+                <!-- <ul >
+                    <li>
+                        <div>
+                            <span class="chapter-name">Chapter 1</span>
+                            <div style="display: flex;">
+                                <div class="url-area">
+                                    <input class="url-input" type="text" id="chapterLink-0" 
+                                    placeholder="Download link">
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="chapter-name">Chapter 2</span>
+                            <div style="display: flex;">
+                                <div class="url-area">
+                                    <input class="url-input" type="text" id="chapterLink-1" 
+                                    placeholder="Download link">
+                                </div>
+                                <button class="r-btn btn btn-blue">Add »</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul> -->
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px">
+            <h3 style="margin-top: 35px;">Final Reader link:</h3>
+            <div style="display: flex;">
+                <div class="url-area">
+                    <input class="url-input" type="text" id="finalLink" 
+                    placeholder="Final reader link" readonly>
+                </div>
+                  
+                  <span style="cursor: pointer;" onclick="copyFinalLink()">
+                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                  </span>
+                  
+            </div>
+        </div>
+
+    </div>
+  </body>
+
+  <style>
+    .container {
+      font-size: 20.5px;
+      margin-left: 40px;
+      margin-right: 40px;
+      color: #272525;
+      padding: 10px;
+      font-family: monospace;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+      .container {
+        margin-left: 11px;
+        font-size: 23px;
+      }
+    }
+
+    .background {
+        background-color: rgb(248, 248, 248);
+    }
+
+    /* h1, h2 {
+      margin-bottom: 40px;
+    } */
+
+    h3 {
+      margin-bottom: 2px;
+    }
+
+    a {
+      color: #2ba2c6;
+    }
+
+    .copy-icon {
+        color: #656565; 
+        width: 63px;
+        margin-top: 15px;
+    }
+
+    .btn {
+      font-family: Roboto,sans-serif;
+      border-radius: 4px;
+      font-size: 16px;
+      padding: 10px 25px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      text-align: center;
+      margin-bottom: 0;
+      text-decoration: none;
+    }
+
+    .btn.btn-green {
+      -webkit-box-shadow: 0 1px 6px rgba(57,73,76,.25);
+      box-shadow: 0 1px 6px rgba(57,73,76,.25);
+      color: #fff;
+      background-color: #359900;
+    }
+
+    .btn.btn-blue {
+      -webkit-box-shadow: 0 1px 6px rgba(57,73,76,.25);
+      box-shadow: 0 1px 6px rgba(57,73,76,.25);
+      color: #fff;
+      background-color: #46a4ca;
+    }
+
+    .btn.btn-gray {
+        -webkit-box-shadow: 0 1px 6px rgba(57,73,76,.25);
+        box-shadow: 0 1px 6px rgba(57,73,76,.25);
+        color: #fff;
+        background-color: #808080;
+    }
+
+    .r-btn {
+        margin: 25px 2px; 
+        display: block;
+    }
+
+    .url-area {
+      margin: 25px;
+      margin-left: 0px;
+      width: 80%;
+    }
+
+    .download-url-area {
+        width: 79.6%;
+    }
+
+    .url-input {
+      border: 2px solid #ccc;
+      background: white;
+      padding: 10px;
+      padding-right: 0px;
+      width: -webkit-fill-available;
+      width: -moz-available;
+      font-family: monospace;
+    }
+
+    .toggle-area {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .toggle-name {
+        margin-right: 20px;
+        font-weight: 600;
+        width: 190px;
+    }
+
+    #chaptersList ul {
+        padding-left: 29px;
+    }
+
+    .chapter-name {
+        font-size: 95%;
+    }
+
+    #finalLink {
+        border: 2px solid #848484;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 56px;
+      height: 29.8px;
+    }
+    .switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+    input:checked + .slider {
+      background-color: #384148;
+    }
+    input:focus + .slider {
+      box-shadow: 0 0 1px #384148;
+    }
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 34px;
+    }
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+
+<script>
+let isLTR = UrlParse_DEFAULT_isLTR;
+let isSeparator = UrlParse_DEFAULT_isSeparator;
+let isDarkTheme = UrlParse_DEFAULT_isDarkTheme;
+let downloadList = [];
+let urlParse = new UrlParse();
+
+function copyFinalLink() {
+  let copyText = document.getElementById("finalLink");
+
+  if (!copyText.value) {
+      alert("Final link is empty");
+  }
+  else {
+      /* Select the text field */
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /* For mobile devices */
+      
+      /* Copy the text inside the text field */
+      document.execCommand("copy");
+  }
+}
+
+/**
+ * @param {String} HTML representing a single element
+ * @return {Element}
+ */
+ function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
+
+function updateChaptersList(files) {
+    try {
+        const chaptersList = document.getElementById("chaptersList");
+        chaptersList.innerHTML = "";
+        const list = document.createElement("ul");
+        chaptersList.appendChild(list);
+
+        for (var i = 0; i < downloadList.length + 1; i++) {
+            const li = document.createElement("li");
+            list.appendChild(li);
+            let isLast = i == downloadList.length;
+
+            let div = htmlToElement(
+                `<div>
+                    <span class="chapter-name">Chapter ${i + 1}${isLast ? ' >>' : ''}</span>
+                    <div style="display: flex; margin-top: -7px;">
+                        <div class="url-area download-url-area">
+                            <input class="url-input" type="text" id="chapterLink-${i}" 
+                            placeholder="Enter download link">
+                        </div>
+                        ${isLast ? '<button class="r-btn btn btn-blue" onclick="addChapterLink()">Add »</button>' : ''}
+                    </div>
+                </div>`
+                );
+
+            li.appendChild(div);
+        }
+
+        for (var i = 0; i < downloadList.length; i++) {
+            let chapterInput = document.getElementById(`chapterLink-${i}`);
+            
+            // Enter the previous value to the input field
+            chapterInput.value = downloadList[i];
+
+            // On input change, update array and update final link
+            chapterInput.oninput = (evt) => {
+                let input = evt.srcElement;
+                downloadListIndex = parseInt(input.id.split("-")[1]);
+                downloadList[downloadListIndex] = input.value;
+                updateFinalLink();
+            };
+        }
+    }
+    catch (e) {
+        alert(`Can't update chapters list. Error: ${e}`)
+    }
+}
+
+function updateToggles(toggle) {
+    // Update data from UI
+    if (toggle) {
+        if (toggle.id == 'checkbox_Rtl') {
+            isLTR = toggle.checked;
+        }
+        else if (toggle.id == 'checkbox_Separator') {
+            isSeparator = toggle.checked;
+        }
+        else if (toggle.id == 'checkbox_DarkTheme') {
+            isDarkTheme = toggle.checked;
+        }
+    }
+    // Update UI from data
+    else {
+        document.getElementById('checkbox_Rtl').checked = isLTR;
+        document.getElementById('checkbox_Separator').checked = isSeparator;
+        document.getElementById('checkbox_DarkTheme').checked = isDarkTheme;
+    }
+
+    updateFinalLink();
+}
+
+function addChapterLink() {
+    const chapterInputId = `chapterLink-${downloadList.length}`;
+    const newLinkString = document.getElementById(chapterInputId).value;
+    
+    if (newLinkString) {
+        downloadList.push(newLinkString);
+        updateChaptersList();
+        updateFinalLink();
+        window.scrollTo(0,document.body.scrollHeight);
+    }
+    else {
+        alert("Empty link...");
+    }
+}
+
+function updateFromLink() {
+    let urlParse;
+    const existingUrl = document.getElementById("existingUrl").value;
+
+    if (!existingUrl) {
+        alert("Empty link...");
+        return;
+    }
+
+    try {
+        urlParse = new UrlParse(existingUrl);
+    } catch (e) {
+        alert(`Illegal link: ${e}`);
+        console.log(`Illegal link: ${e}`);
+    }
+
+    if (!urlParse) {
+        return;
+    }
+
+    isLTR = urlParse.isLTR;
+    isSeparator = urlParse.isSeparator;
+    isDarkTheme = urlParse.isDarkTheme;
+    downloadList = urlParse.downloadList;
+
+    updateChaptersList();
+    updateFinalLink();
+    updateToggles();
+}
+
+function updateFinalLink() {
+    const finalLinkString = urlParse.createUrl(isLTR, isSeparator, isDarkTheme, downloadList);
+    const finalLinkInput = document.getElementById("finalLink");
+    finalLinkInput.value = finalLinkString;
+}
+
+updateChaptersList();
+updateFinalLink();
+updateToggles();
+
+</script>
+</html>

@@ -10,6 +10,9 @@
         <script src="jquery-3.4.1.min.js"></script>
         <script type="text/javascript" src="jszip.js"></script>
         <script src=min.natural-compare.js></script>
+        
+        <!-- Local files -->
+        <script src="parse-url.js"></script>
 
         <!-- From https://loading.io/progress/ -->
         <link rel="stylesheet" type="text/css" href="loading-bar.css"/>
@@ -713,7 +716,7 @@
     var isFirstScroll = true;
     var multiChaptersArray = [];
     var currChapterIndex = 0;
-    var isLTRNavigation = true;
+    var isLTRNavigation = UrlParse_DEFAULT_isLTR;
 
     function selectSetting(evt) {
         if (evt.className == "active") {
@@ -996,18 +999,22 @@
         showElement("downloadProgressBar");
 
         const readyBlobCallback = blobFile => {
-            cancelMultiChapters();
+            cancelMultiChapters(); // TODO: only if not multi-download mode
             hideElement("downloadProgressBar"); 
             updateZipImages(blobFile);
         };
+
         const fileDataCallback = ({ filename }) => {
             setFileNameText(filename);
         };
+
         const errorCallback = errorString => alert(errorString);
+
         const progressCallback = (receivedLength, contentLength) => {
             const percent = contentLength !== 0 ? Math.floor((receivedLength / contentLength) * 100) : null;
             updateDownloadProgressBar(percent);
         };
+
         const selectFileNameIfMissing = url => {
             let lastUrlParameter = decodeURI(url).split("/").slice(-1)[0];
             if (lastUrlParameter.endsWith("zip") || lastUrlParameter.endsWith("cbz")) {
@@ -1305,6 +1312,8 @@
             let blob = new Blob(chunks);
             blob.name = filename;
 
+            // TODO: Store blob file when multi-download mode
+
             progressCallback && progressCallback(receivedLength, receivedLength)
             readyBlobCallback && readyBlobCallback(blob)
         }
@@ -1391,46 +1400,47 @@
 
     // Handle url parameters
     const urlString = window.location.href;
-    const url = new URL(urlString);
+    let urlParse = new UrlParse();
 
-    if (url.searchParams.get("ltr")) {
-        const ltrString = url.searchParams.get("ltr");
-        if (ltrString == "false") {
-            isLTRNavigation = false;
-        }
-        else {
-            isLTRNavigation = true;
-        }
+    try {
+        urlParse = new UrlParse(urlString);
+    }
+    catch (e) {
+        alert(`Can't parse url: ${e}`);
+        console.log(`Can't parse url: ${e}`);
     }
 
-    if (url.searchParams.get("separator")) {
-        const separatorMode = url.searchParams.get("separator");
-        if (separatorMode == "on") {
-            showSeparatorLine();
-        }
-        else {
-            hideSeparatorLine();
-        }
+    console.log(`Url Data: ${JSON.stringify(urlParse)}`);
+
+    // LTR
+    isLTRNavigation = urlParse.isLTR;
+
+    // Separator
+    if (urlParse.isSeparator) {
+        showSeparatorLine();
+    }
+    else {
+        hideSeparatorLine();
     }
 
-    if (url.searchParams.get("theme")) {
-        const theme = url.searchParams.get("theme");
-        if (theme == "dark") {
-            setDarkTheme();
-        }
-        else {
-            setLightTheme();
-        }
+    // Theme
+    if (urlParse.isDarkTheme) {
+        setDarkTheme();
+    }
+    else {
+        setLightTheme();
     }
 
-    const downloadParamName = "download=";
-    const downloadParamIndex = url.search.indexOf(downloadParamName);
-    if (downloadParamIndex >= 0) {
-        const downloadUrl = url.search.slice(downloadParamIndex + downloadParamName.length);
-        if (downloadUrl) {
-            console.log(`Handle download url: ${downloadUrl}`);
-            handleDownloadLinkFromUrlParameter(downloadUrl);
-        }
+    // Download
+    if (urlParse.downloadList.length == 1) {
+        let downloadUrl = urlParse.downloadList[0];
+        console.log(`Handle download url: ${downloadUrl}`);
+        handleDownloadLinkFromUrlParameter(downloadUrl);
+    }
+    // If Multi-Chapters mode
+    else if (urlParse.downloadList.length > 1) {
+        // let downloadUrl = urlParse.downloadList[0]; // TODO: delete line
+        console.log(`Multi-Chapters mode: ${urlParse.downloadList}`);
     }
 
 </script>
