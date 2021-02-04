@@ -1035,7 +1035,15 @@
         downloadChapter(comicUrl, false);
     }
 
+    function removeImages() {
+        document.getElementById("list").innerHTML = "";
+        hideElement("bottomNavigation");
+    }
+
     function downloadChapter(comicUrl, isMulti = false) {
+        // Remove images when downloaded
+        removeImages();
+
         showElement("downloadProgressBar");
 
         const readyBlobCallback = blobFile => {
@@ -1061,7 +1069,7 @@
                 return lastUrlParameter;
             }
             else {
-                return "Comic";
+                return "WiseRead";
             }
         }
 
@@ -1076,6 +1084,8 @@
 
     function updateZipImages(blobFile) {
         const chapterIndexAtStart = currChapterIndex;
+
+        removeImages();
 
         if (blobFile.name) {
             setFileNameText(blobFile.name);
@@ -1103,9 +1113,6 @@
                     if (chapterIndexAtStart == currChapterIndex) {
                         updateImages(zipEntriesList);
                         hideElement("loader");
-                        if (multiChaptersArray.length > 1) {
-                            showElement("bottomNavigation");
-                        }
                     }
                 }).catch(err => {
                     let message = `Can't extract archive. Maybe you use Netspark or Rimon? (error: ${err})`;
@@ -1160,6 +1167,10 @@
                     if (loadingImages == 0) {
                         // Calc images positions again now when all the images have been loaded
                         calcImagesPositions();
+                    }
+
+                    if (multiChaptersArray.length > 1) {
+                        showElement("bottomNavigation");
                     }
                 };
                 li.appendChild(img);
