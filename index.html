@@ -50,14 +50,15 @@
                 </ul>
             </div>
         </div>
+        
+        <div id="aboutArea" class="hide">
+            This site was built for the community to enjoy. <a href="about.html">Read more</a>.
+        </div>
+
         <div id="topNavigation" class="navigation hide">
             <i class="nav-arrow nav-arrow-left" role="button" onclick="navToLeftChapter()"></i>
             <span class="chapter-header"># Chapter ? #</span>
             <i class="nav-arrow nav-arrow-right" role="button" onclick="navToRightChapter()"></i>
-        </div>
-
-        <div id="aboutArea" class="hide">
-            This site was built for the community to enjoy. <a href="about.html">Read more</a>.
         </div>
 
         <div id="loaderArea">
@@ -114,19 +115,24 @@
         --link-color: #465cd6;
         --link-button-color: #fff;
         --link-button-background-color: #7b94a2;
+
+        --scrollbarBG: transparent;
+        --thumbBG: #9c9b9b;
     }
 
     [data-theme="dark"] {
         --separator-line-color: rgba(223, 213, 213, 0.233);
-        --page-background-color: rgb(50 52 53);
-        --setting-bar-background-color: #353535;
+        --page-background-color: rgb(43 45 45);
+        --setting-bar-background-color: rgb(43 45 45);
         --setting-bar-hover-background-color: rgb(86 85 85);
-        --setting-bar-selected-background-color: rgb(124 124 124);
+        --setting-bar-selected-background-color: rgb(119 119 119);
         --setting-bar-main-color: #cacaca;
         --main-text-color: #dadada;
         --link-color: #8290de;
         --link-button-color: #e4e4e4;
         --link-button-background-color: #6b6c6d;
+
+        --thumbBG: #888888;
     }
 
     [separator-line-mode="off"] {
@@ -140,6 +146,23 @@
 
     body {
         margin: 0;
+    }
+
+    /* styled scrollbar */
+    body::-webkit-scrollbar {
+        width: 7px;
+    }
+    body {
+        scrollbar-width: thin;
+        scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+    }
+    body::-webkit-scrollbar-track {
+        background: var(--scrollbarBG);
+    }
+    body::-webkit-scrollbar-thumb {
+        background-color: var(--thumbBG) ;
+        /* border-radius: 6px; */
+        border: 3px solid var(--scrollbarBG);
     }
 
     .mainwrapper {
@@ -189,6 +212,8 @@
         color: var(--setting-bar-main-color);
         text-align: center;
         padding: 14px 16px;
+        margin: 0px 1px 0px 1px;
+        min-width: 96px;
         text-decoration: none;
     }
 
@@ -326,7 +351,16 @@
         color: var(--setting-bar-main-color);
     }
 
-    .urlTextInput::placeholder  {
+    .urlTextInput::placeholder  { /* Chrome, Firefox, Opera, Safari 10.1+ */
+        color: var(--setting-bar-main-color);
+        opacity: 0.8;
+    }
+    .urlTextInput:-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: var(--setting-bar-main-color);
+        opacity: 0.8;
+    }
+    .urlTextInput::-ms-input-placeholder { /* Microsoft Edge */
+        color: var(--setting-bar-main-color);
         opacity: 0.8;
     }
 
@@ -511,13 +545,18 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background-color: var(--setting-bar-background-color);
-        border: 1px solid #e7e7e7;
+        /* background-color: var(--setting-bar-background-color); */
+        border: 1px solid #e7e7e700;
         font-size: 17px;
     }
 
     .navigation.hide {
         display: none;
+    }
+
+    #bottomNavigation {
+        background-color: var(--setting-bar-background-color);
+        border: 1px solid #e7e7e7;
     }
 
     .nav-arrow {
