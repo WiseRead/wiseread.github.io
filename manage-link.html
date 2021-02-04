@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html id="entire-page">
   <head>
-      <title>WiseRead - Manage Direct Reader link</title>
+      <title>WiseRead - Manage Reader link</title>
       <script src="parse-url.js"></script>
   </head>
 
   <body class="background">
     <div class="container">
-        <h2>Manage Direct Reader link</h2>
+        <h2>Manage WiseRead link</h2>
         Create/Edit Direct Reader link of <a href="https://wiseread.github.io">WiseRead</a>.
         
         <h3 style="margin-top: 50px;">Enter link if you already have one:</h3>
@@ -44,7 +44,7 @@
         </div>
 
         <div class="download-list" style="margin-top: 45px;">
-            <h3 class="">Direct chapters links:</h3>
+            <h3 class="">Chapters links:</h3>
             <div id="chaptersList">
                 <!-- <ul >
                     <li>
@@ -75,7 +75,7 @@
         </div>
 
         <div style="margin-bottom: 20px">
-            <h3 style="margin-top: 35px;">Final Reader link:</h3>
+            <h3 style="margin-top: 35px;">Final WiseRead link:</h3>
             <div style="display: flex;">
                 <div class="url-area">
                     <input class="url-input" type="text" id="finalLink" 
@@ -321,7 +321,7 @@ function updateChaptersList(files) {
                     <div style="display: flex; margin-top: -7px;">
                         <div class="url-area download-url-area">
                             <input class="url-input" type="text" id="chapterLink-${i}" 
-                            placeholder="Enter download link">
+                            placeholder="Enter direct download link">
                         </div>
                         ${isLast ? '<button class="r-btn btn btn-blue" onclick="addChapterLink()">Add »</button>' : ''}
                     </div>

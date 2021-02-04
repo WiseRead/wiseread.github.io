@@ -717,6 +717,7 @@
     var multiChaptersArray = [];
     var currChapterIndex = 0;
     var isLTRNavigation = UrlParse_DEFAULT_isLTR;
+    var downloadUrlsList = [];
 
     function selectSetting(evt) {
         if (evt.className == "active") {
@@ -834,7 +835,9 @@
     }
 
     function cancelMultiChapters() {
+        // TODO: clean old blobs completely from memory
         multiChaptersArray = [];
+        downloadUrlsList = [];
         currChapterIndex = 0;
         hideElement("topNavigation");
         hideElement("bottomNavigation");
@@ -894,14 +897,38 @@
             return;
         }
 
+        let oldChapterIndex = currChapterIndex;
         currChapterIndex = toIndex;
+
+        let comicUrl = (downloadUrlsList.length > toIndex) ? downloadUrlsList[toIndex] : null;
 
         // Update chapter headers
         let chapterHeaders = document.getElementsByClassName("chapter-header");
         [...chapterHeaders].forEach(a => a.textContent = `# Chapter ${toIndex + 1} #`);
 
-        // Load chapter
-        updateZipImages(multiChaptersArray[toIndex]);
+        // Fill urlInput if multi-download mode
+        if (comicUrl) {
+            document.getElementById("urlInput").value = comicUrl;
+        }
+
+        // If blob exists, whether it downloaded or local file
+        if (multiChaptersArray[toIndex] !== null) {
+            // Load chapter
+            updateZipImages(multiChaptersArray[toIndex]);
+        }
+        else {
+            if (comicUrl) {
+                // Download and load chapter
+                downloadChapter(comicUrl, true);
+
+                // TODO: if there is a next chapter, and it wasn't downloaded yet,
+                //       start download it in advance
+            }
+            else {
+                alert("Can't load chapter");
+                console.error("Can't load chapter, no comicUrl");
+            }
+        }
 
         // Hide/Show next arrow
         if (currChapterIndex + 1 >= multiChaptersArray.length) {
@@ -923,10 +950,19 @@
         scrollToTop();
     }
 
-    function startMultiChapters(archiveFiles) {
+    // Start Multi-Chapters mode from local files or from online files
+    function startMultiChapters(archiveFiles, in_downloadUrlsList) {
         cancelMultiChapters();
         multiChaptersArray = [...archiveFiles];
-        multiChaptersArray.sort((a, b) => String.naturalCompare(a.name, b.name));
+        
+        if (in_downloadUrlsList) {
+            downloadUrlsList = [...in_downloadUrlsList];
+        }
+
+        // Sort if there are not null chapters
+        if (multiChaptersArray.every(e => e !== null)) {
+            multiChaptersArray.sort((a, b) => String.naturalCompare(a.name, b.name));
+        }
 
         showElement("topNavigation");
         // (Show bottomNavigation only when images loading is complete)
@@ -996,10 +1032,14 @@
             return;
         }
         
+        downloadChapter(comicUrl, false);
+    }
+
+    function downloadChapter(comicUrl, isMulti = false) {
         showElement("downloadProgressBar");
 
         const readyBlobCallback = blobFile => {
-            cancelMultiChapters(); // TODO: only if not multi-download mode
+            (!isMulti) && cancelMultiChapters();
             hideElement("downloadProgressBar"); 
             updateZipImages(blobFile);
         };
@@ -1206,6 +1246,10 @@
     function handleDownloadLinkFromUrlParameter(downloadUrl) {
         document.getElementById("urlInput").value = downloadUrl;
         urlInputButtonClick();
+    }
+
+    function handleMultiDownloadLinksFromUrlParameter(downloadList) {
+        startMultiChapters(urlParse.downloadList.map(s => null), urlParse.downloadList);
     }
 
     // Get file name from content-disposition header
@@ -1439,8 +1483,8 @@
     }
     // If Multi-Chapters mode
     else if (urlParse.downloadList.length > 1) {
-        // let downloadUrl = urlParse.downloadList[0]; // TODO: delete line
-        console.log(`Multi-Chapters mode: ${urlParse.downloadList}`);
+        console.log(`Online-Multi-Chapters mode: ${urlParse.downloadList.length} links`);
+        handleMultiDownloadLinksFromUrlParameter(urlParse.downloadList);
     }
 
 </script>
