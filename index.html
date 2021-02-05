@@ -48,7 +48,7 @@
             <div class="table">
                 <ul>
                     <li><a onclick="selectSetting(this)" id="themeButton">DarkMode</a></li>
-                    <li><a onclick="selectSetting(this)" id="separatorLineButton">SeparatorLine</a></li>
+                    <li><a onclick="selectSetting(this)" id="separatorLineButton">Separated</a></li>
                     <li><a onclick="selectSetting(this)">About</a></li>
                 </ul>
             </div>
@@ -124,7 +124,7 @@
     }
 
     [data-theme="dark"] {
-        --separator-line-color: rgba(223, 213, 213, 0.233);
+        --separator-line-color: transparent;
         --page-background-color: rgb(43 45 45);
         --setting-bar-background-color: rgb(43 45 45);
         --setting-bar-hover-background-color: rgb(86 85 85);
@@ -216,8 +216,15 @@
         text-align: center;
         padding: 14px 16px;
         margin: 0px 1px 0px 1px;
-        min-width: 96px;
+        min-width: 80px;
         text-decoration: none;
+    }
+
+    /* Phone screen */ 
+    @media (max-width:990px) { 
+        .setting-bar li a  {
+            min-width: 170px;
+        }
     }
 
     .setting-bar li a:hover:not(.active) {
@@ -739,7 +746,7 @@
         if (evt.text == "DarkMode") {
             switchTheme()
         }
-        else if (evt.text == "SeparatorLine") {
+        else if (evt.text == "Separated") {
             switchSeparatorLineMode()
         }
         else if (evt.text == "About") {
